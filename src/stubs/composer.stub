@@ -17,12 +17,12 @@
     },
     "autoload": {
         "psr-4": {
-            "{{ COMPOSER_NAMESPACE }}": "{{ DIRECTORY_PATH }}",
+            "{{ COMPOSER_NAMESPACE }}": "{{ DIRECTORY_PATH }}"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "{{ COMPOSER_NAMESPACE }}": "{{ DIRECTORY_PATH }}",
+            "{{ COMPOSER_NAMESPACE }}": "{{ DIRECTORY_PATH }}"
         }
     }
 }

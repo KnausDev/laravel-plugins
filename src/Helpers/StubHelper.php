@@ -52,6 +52,14 @@ class StubHelper
             ->replaces(self::getReplaces())
             ->generate();
 
+        LaravelStub::from(__DIR__ . '/../stubs/scaffold/config.stub')
+            ->to(
+                FileHelper::getPluginSaveDirectory('config')
+            )->name('config')
+            ->ext('php')
+            ->replaces(self::getReplaces())
+            ->generate();
+
         LaravelStub::from(__DIR__ . '/../stubs/composer.stub')
             ->to(
                 FileHelper::getPluginSaveDirectory()
@@ -59,5 +67,6 @@ class StubHelper
             ->ext('json')
             ->replaces(self::getReplaces())
             ->generate();
+
     }
 }
