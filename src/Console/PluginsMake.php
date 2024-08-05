@@ -5,8 +5,9 @@ namespace KnausDev\LaravelPlugins\Console;
 
 use Exception;
 use Illuminate\Support\Str;
-use KnausDev\LaravelPlugins\Helpers\FileHelper;
-use KnausDev\LaravelPlugins\Helpers\StubHelper;
+use KnausDev\LaravelPlugins\Facades\FileHelper;
+use KnausDev\LaravelPlugins\Facades\Plugins;
+use KnausDev\LaravelPlugins\Facades\StubHelper;
 
 class PluginsMake extends Command
 {
@@ -15,9 +16,7 @@ class PluginsMake extends Command
      *
      * @var string
      */
-    protected $signature = 'plugins:make {vendor.name}';
-
-    public FileHelper $fileHelper;
+    protected $signature = 'plugins:make {vendor.name : Vendor name and package name separated by dot - Vendor is optional if configured}';
 
     /**
      * The console command description.
@@ -33,21 +32,30 @@ class PluginsMake extends Command
      */
     public function handle(): void
     {
-        $this->pluginName = Str::of($this->argument('vendor.name'));
+        $this->checkForVendorAndResolvePackageName();
+        FileHelper::createPluginDirectory();
 
-        $this->checkForVendor();
-
-        $this->resolvePackageName();
-
-        $this->fileHelper = new FileHelper($this->vendor, $this->packageName);
-        $this->fileHelper->createPluginDirectory();
-
-
-        // Create plugin structure from stub
-        $stubHelper = new StubHelper($this->fileHelper);
-        $stubHelper->createPluginStub();
+        StubHelper::setReplaces($this->generateReplaces());
+        StubHelper::createPluginStub();
 
 
         $this->info('Plugin created successfully!');
+    }
+
+    public function generateReplaces(): array
+    {
+        return [
+            'MODULE' => Plugins::getPackageName(),
+            'LOWER_NAME' => Plugins::getPackageName(),
+            'NAMESPACE' => Plugins::getVendor() . '\\' . Plugins::getPackageName(),
+            'CLASS' => Plugins::getPackageName() . 'ServiceProvider',
+            'COMPOSER_NAMESPACE' => Plugins::getNamespace(true),
+            'AUTHOR_NAME' => config('laravel-plugins.composer.author.name'),
+            'AUTHOR_EMAIL' => config('laravel-plugins.composer.author.email'),
+            'VENDOR' => Plugins::getVendor(),
+            'PACKAGE_NAME' => Plugins::getPackageName(),
+            'DIRECTORY_PATH' => FileHelper::getPluginDirectory(true) . '/',
+            'PROVIDER' => '"' . FileHelper::getPluginDirectory(false, true) . '\\\\' . Plugins::getPackageName() . 'ServiceProvider"',
+        ];
     }
 }

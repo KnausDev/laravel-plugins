@@ -4,13 +4,28 @@ namespace KnausDev\LaravelPlugins\Console;
 
 
 use Exception;
+use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
+use KnausDev\LaravelPlugins\Facades\Plugins;
 
 class Command extends \Illuminate\Console\Command
 {
     public Stringable $pluginName;
     public string $vendor;
     public string $packageName;
+
+    /**
+     * @throws Exception
+     */
+    public function checkForVendorAndResolvePackageName(): void
+    {
+        $this->pluginName = Str::of($this->argument('vendor.name'));
+
+        $this->checkForVendor();
+
+        $this->resolvePackageName();
+
+    }
 
 
     /**
@@ -37,5 +52,8 @@ class Command extends \Illuminate\Console\Command
                 list($this->vendor, $this->packageName) = $this->pluginName->explode('.');
             }
         }
+
+        Plugins::setVendor($this->vendor);
+        Plugins::setPackageName($this->packageName);
     }
 }
