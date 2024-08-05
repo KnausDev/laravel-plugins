@@ -4,7 +4,6 @@ namespace KnausDev\LaravelPlugins\Console;
 
 
 use Exception;
-use Illuminate\Support\Str;
 use KnausDev\LaravelPlugins\Facades\FileHelper;
 use KnausDev\LaravelPlugins\Facades\Plugins;
 use KnausDev\LaravelPlugins\Facades\StubHelper;
