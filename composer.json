@@ -29,9 +29,7 @@
         }
     },
     "autoload-dev": {
-        "psr-4": {
-            "KnausDev\\LaravelPlugins\\Tests\\": "tests"
-        }
+        "psr-4": {}
     },
     "scripts": {
         "test": "vendor/bin/phpunit",
@@ -44,12 +42,8 @@
     "extra": {
         "laravel": {
             "providers": [
-                "KnausDev\\LaravelPlugins\\LaravelPluginsServiceProvider",
-                "KnausDev\\LaravelPlugins\\providers\\LaravelStubServiceProvider"
-            ],
-            "aliases": {
-                "LaravelPlugins": "KnausDev\\LaravelPlugins\\LaravelPluginsFacade"
-            }
+                "KnausDev\\LaravelPlugins\\LaravelPluginsServiceProvider"
+            ]
         }
     }
 }
