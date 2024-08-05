@@ -7,7 +7,8 @@ use KnausDev\LaravelPlugins\Console\Make\MakeModel;
 use KnausDev\LaravelPlugins\Console\PluginsMake;
 use KnausDev\LaravelPlugins\Helpers\FileHelper;
 use KnausDev\LaravelPlugins\Helpers\LaravelStub;
-use KnausDev\LaravelPlugins\providers\ConsoleServiceProvider;
+use KnausDev\LaravelPlugins\Helpers\Plugins;
+use KnausDev\LaravelPlugins\Helpers\StubHelper;
 
 
 class LaravelPluginsServiceProvider extends ServiceProvider
@@ -17,8 +18,6 @@ class LaravelPluginsServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->app->bind('laravel-stub', fn ($app) => new LaravelStub);
-
         /*
          * Optional methods to load your package assets
          */
@@ -38,7 +37,7 @@ class LaravelPluginsServiceProvider extends ServiceProvider
             ], 'views');*/
 
             // Registering package commands.
-             $this->commands([PluginsMake::class, MakeModel::class]);
+//             $this->commands();
         }
     }
 
@@ -51,17 +50,25 @@ class LaravelPluginsServiceProvider extends ServiceProvider
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/config.php', 'laravel-plugins');
 
-        // Register the main class to use with the facade
-//        $this->app->singleton('laravel-plugins', function () {
-//            return new FileHelper;
-//        });
+        $this->app->bind('laravel-stub', fn ($app) => new LaravelStub);
+
+        $this->app->singleton('Plugins', function () {
+            return new Plugins;
+        });
+
+        $this->app->singleton('file-helper', fn ($app) => new FileHelper());
+        $this->app->singleton('stub-helper', fn ($app) => new StubHelper());
+
+        $this->registerCommands();
     }
 
-    /**
-     * Register providers.
-     */
-    protected function registerProviders()
+    private function registerCommands()
     {
-        $this->app->register(ConsoleServiceProvider::class);
+        $this->commands(
+            [
+                PluginsMake::class,
+                MakeModel::class
+            ]
+        );
     }
 }

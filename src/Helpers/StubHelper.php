@@ -2,18 +2,21 @@
 
 namespace KnausDev\LaravelPlugins\Helpers;
 
-use Illuminate\Support\Facades\File;
+use Exception;
+use KnausDev\LaravelPlugins\Facades\LaravelStub;
+use KnausDev\LaravelPlugins\Facades\Plugins;
+use KnausDev\LaravelPlugins\Facades\FileHelper;
 
 class StubHelper
 {
 
     public string $type;
-    public FileHelper $fileHelper;
+    public array $replaces;
 
-    public function __construct(FileHelper $fileHelper)
-    {
-        $this->fileHelper = $fileHelper;
-    }
+    /**
+     * @throws Exception
+     */
+    public function __construct() {}
 
     public function loadStubs()
     {
@@ -26,11 +29,35 @@ class StubHelper
         return file_get_contents(__DIR__ . '/../stubs/scaffold/provider.stub');
     }
 
-    public function createPluginStub()
+    public function setReplaces(array $replaces): void
     {
-        // Add service provider to vendor/packageName/{packageName}SerivceProvider.php
+        $this->replaces = $replaces;
+    }
 
-        \KnausDev\LaravelPlugins\Facades\LaravelStub::from(__DIR__ . '/../stubs/scaffold/provider.stub')->to($this->fileHelper->getPluginSaveDirectory())->name('test')->ext('php')->generate();
-        dd($this->loadStubs());
+    public function getReplaces(): array
+    {
+        return $this->replaces;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function createPluginStub(): void
+    {
+        LaravelStub::from(__DIR__ . '/../stubs/scaffold/provider.stub')
+            ->to(
+                FileHelper::getPluginSaveDirectory('provider')
+            )->name(Plugins::getPackageName() . 'ServiceProvider')
+            ->ext('php')
+            ->replaces(self::getReplaces())
+            ->generate();
+
+        LaravelStub::from(__DIR__ . '/../stubs/composer.stub')
+            ->to(
+                FileHelper::getPluginSaveDirectory()
+            )->name('composer')
+            ->ext('json')
+            ->replaces(self::getReplaces())
+            ->generate();
     }
 }

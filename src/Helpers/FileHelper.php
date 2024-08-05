@@ -4,18 +4,14 @@ namespace KnausDev\LaravelPlugins\Helpers;
 
 use Exception;
 use Illuminate\Support\Facades\File;
+use KnausDev\LaravelPlugins\Facades\Plugins;
 
 class FileHelper
 {
     public string $vendor;
     public string $packageName;
-    public string $pluginDirectory;
 
-    public function __construct(string $vendor, string $packageName) {
-        $this->vendor = $vendor;
-        $this->packageName = $packageName;
-        $this->pluginDirectory = $this->vendor.'/'.$this->packageName;
-    }
+    public function __construct() {}
 
     public function getPluginsDirectory(): string {
         return base_path(config('laravel-plugins.directory'));
@@ -24,20 +20,26 @@ class FileHelper
     /**
      * @throws Exception
      */
-    public function getPluginDirectory(): string {
+    public function getPluginDirectory(bool $isRelative = false, bool $isComposer = false): string {
         $path = '';
 
         if (config('laravel-plugins.vendor.is_active')) {
-            if ($this->vendor == '') {
-                $this->vendor = config('laravel-plugins.vendor.name');
-                if ($this->vendor == '') {
-                    throw new \Exception('Vendor name is empty');
+            if (Plugins::getVendor() == '') {
+                Plugins::setVendor(config('laravel-plugins.vendor.name'));
+                if (Plugins::getVendor() == '') {
+                    throw new Exception('Vendor name is empty');
                 }
             }
-            $path = $this->vendor . '/';
+            $path = Plugins::getVendor() . '/';
         }
 
-        $path .= $this->packageName;
+        $path .= Plugins::getPackageName();
+        if ($isComposer) {
+            return str_replace('/', '\\\\', $path);
+        }
+        if ($isRelative) {
+            return config('laravel-plugins.directory') . '/' . $path;
+        }
         return $this->getPluginsDirectory() . '/' . $path;
     }
 
@@ -46,12 +48,16 @@ class FileHelper
      *
      * @throws Exception
      */
-    public function getPluginSaveDirectory(string $type): string {
-        if (!File::isDirectory($this->getPluginDirectory() . '/' . config("laravel-plugins.paths.generator.{$type}.path"))) {
-            File::makeDirectory($this->getPluginDirectory() . '/' . config("laravel-plugins.paths.generator.{$type}.path"), 0755, true);
+    public function getPluginSaveDirectory(string $type = ''): string {
+        if (!File::isDirectory($this->getPluginDirectory() . '/' . config("laravel-plugins.paths.generator.$type.path"))) {
+            File::makeDirectory($this->getPluginDirectory() . '/' . config("laravel-plugins.paths.generator.$type.path"), 0755, true);
         }
 
-        return $this->getPluginDirectory() . '/' . config("laravel-plugins.paths.generator.{$type}.path");
+        if ($type) {
+            return $this->getPluginDirectory() . '/' . config("laravel-plugins.paths.generator.$type.path");
+        }
+
+        return $this->getPluginDirectory();
     }
 
 

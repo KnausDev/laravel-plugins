@@ -10,6 +10,13 @@ return [
         'name' => 'KnausDev', // TODO: Add to Path Builder as default when dot is not used
     ],
 
+    'composer' => [
+        'author' => [
+            'name' => 'Peter Knaus',
+            'email' => 'peter@knaus-development.com',
+        ]
+    ],
+
     'paths' => [
         /*
         |--------------------------------------------------------------------------
